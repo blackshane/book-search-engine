@@ -13,11 +13,12 @@ type User {
 
 # Define Book type
 type Book {
-bookId: Int
+bookId: String!
 authors:[String]
-description: String
-title: String
-# TODO: ADD IMAGE AND LINK HERE!!!!!!
+description: String!
+title: String!
+image: String
+link: String
 }
 
 # Define Auth type

@@ -23,8 +23,9 @@ link: String
 
 # Define Auth type
 type Auth {
-    # TODO: ADD token HERE!
-    user: [User]
+    # TODO: Check this!
+    token: ID!
+    user: User
 }
 type Query {
     users: [User]

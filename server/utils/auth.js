@@ -1,5 +1,8 @@
 const jwt = require('jsonwebtoken');
 
+// TODO: MAKE WORK WITH GRAPHQL
+
+
 // set token secret and expiration date
 const secret = 'mysecretsshhhhh';
 const expiration = '2h';

@@ -34,88 +34,89 @@ Mutation: {
         const token = signToken(user);
         return { token, user };
     },
-},
 
 
-login: async (parent, { email, password }) => {
-    const user = await User.findOne({ email });
 
-    if (!user) {
-        throw new AuthenticationError('No user found with this email address');
-    }
+  login: async (parent, { email, password }) => {
+      const user = await User.findOne({ email });
 
-    const correctPw = await user.isCorrectPassword(password);
+      if (!user) {
+          throw new AuthenticationError('No user found with this email address');
+      }
 
-    if (!correctPw) {
-        throw new AuthenticationError('Incorrect credentials');
-    }
+      const correctPw = await user.isCorrectPassword(password);
 
-    const token = signToken(user);
+      if (!correctPw) {
+          throw new AuthenticationError('Incorrect credentials');
+      }
 
-    return { token, user };
-},
-saveBook: async (parent, args, context) => {
+      const token = signToken(user);
+
+      return { token, user };
+  },
+  saveBook: async (parent, args, context) => {
+      try {
+          console.log(context);
+          const user = context.user;
+          if (!user) {
+              throw new AuthenticationError('Authentication required');
+          }
+
+          if (!args.book) {
+              throw new Error('book is required');
+          }
+
+          let authors = args.book.authors.map(author => author || 'Unknown Author');
+          
+          let book = await Book.findById(args.book.bookId);
+          if (!book) {
+              book = await Book.create({
+                  bookId: args.book.bookId,
+                  title: args.book.title,
+                  authors: authors,
+                  description: args.book.description,
+                  link: args.book.link,
+                  image: args.book.image
+              });
+          }
+
+          const updatedUser = await User.findOneAndUpdate(
+              { _id: user._id },
+              { $addToSet: { savedBooks: book } },
+              { new: true, runValidators: true }
+          ).populate('savedBooks');
+
+          return updatedUser;
+      } catch (err) {
+          console.error(err);
+          throw err;
+      }
+  },
+  deleteBook: async (parent, args, context) => {
     try {
-        console.log(context);
-        const user = context.user;
-        if (!user) {
-            throw new AuthenticationError('Authentication required');
-        }
+      if (!context.user) {
+        throw new AuthenticationError('Authentication required');
+      }
 
-        if (!args.book) {
-            throw new Error('book is required');
-        }
+      console.log(args.bookId);
+      const updatedUser = await User.findOneAndUpdate(
+        { _id: context.user._id },
+        { $pull: { savedBooks: { bookId: args.bookId } } },
+        { new: true }
+      ).populate('savedBooks');
 
-        let authors = args.book.authors.map(author => author || 'Unknown Author');
-        
-        let book = await Book.findById(args.book.bookId);
-        if (!book) {
-            book = await Book.create({
-                bookId: args.book.bookId,
-                title: args.book.title,
-                authors: authors,
-                description: args.book.description,
-                link: args.book.link,
-                image: args.book.image
-            });
-        }
+      if (!updatedUser) {
+        throw new Error("Couldn't find a user with that id!");
+      }
+      console.log(updatedUser);
 
-        const updatedUser = await User.findOneAndUpdate(
-            { _id: user._id },
-            { $addToSet: { savedBooks: book } },
-            { new: true, runValidators: true }
-        ).populate('savedBooks');
-
-        return updatedUser;
+      return updatedUser;
     } catch (err) {
-        console.error(err);
-        throw err;
+      throw new Error(err.message);
     }
-},
-deleteBook: async (parent, args, context) => {
-  try {
-    if (!context.user) {
-      throw new AuthenticationError('Authentication required');
-    }
+  },
 
-    console.log(args.bookId);
-    const updatedUser = await User.findOneAndUpdate(
-      { _id: context.user._id },
-      { $pull: { savedBooks: { bookId: args.bookId } } },
-      { new: true }
-    ).populate('savedBooks');
-
-    if (!updatedUser) {
-      throw new Error("Couldn't find a user with that id!");
-    }
-    console.log(updatedUser);
-
-    return updatedUser;
-  } catch (err) {
-    throw new Error(err.message);
   }
-},
-
 }
 
 module.exports = resolvers;

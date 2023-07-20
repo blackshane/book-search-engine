@@ -42,7 +42,7 @@ const LoginForm = () => {
       email: '',
       password: '',
     });
-  };
+  
 
   return (
     <>
@@ -84,6 +84,6 @@ const LoginForm = () => {
       </Form>
     </>
   );
-
+  }
 
 export default LoginForm;

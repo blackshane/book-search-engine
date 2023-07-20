@@ -2,7 +2,7 @@
   # Book Search Engine
   A search engine using a MERN stack to allow a user to search their favorite books. A user can search for books, save their favorites, and delete them when they are finished.
   ## Installation
-  To use this app, open the browser and navigate to:
+  To use this app, open the browser and navigate to: https://book-search-engine-50000-dd65318506e2.herokuapp.com/
   ## Usage
   This app is free to use
   ## Contributions 

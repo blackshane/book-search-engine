@@ -29,6 +29,10 @@ app.get('/', (req, res) => {
 const startApolloServer = async () => {
   await server.start();
   server.applyMiddleware({ app });
+
+  db.on('error', (err) => {
+    console.error('MongoDB connection error:', err);
+  });
   
   db.once('open', () => {
     app.listen(PORT, () => {
